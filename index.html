@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>[EDD] — 數位基地</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0A0C10;
+    --bg-alt: #12151B;
+    --surface: #161A21;
+    --ink: #E8ECF1;
+    --ink-soft: #8A93A0;
+    --line: #232833;
+    --moss: #FF8A3D;
+    --moss-deep: #E67426;
+    --clay: #35E6C4;
+    --white: #0A0C10;
+    --radius: 3px;
+  }
+  *{ box-sizing: border-box; margin:0; padding:0; }
+  html{ scroll-behavior: smooth; }
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 85% -10%, rgba(255,138,61,0.10), transparent 60%),
+      radial-gradient(ellipse 700px 500px at -10% 20%, rgba(53,230,196,0.06), transparent 55%),
+      var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  ::selection{ background: var(--moss); color: var(--white); }
+
+  a{ color: inherit; text-decoration: none; }
+  .wrap{ max-width: 980px; margin: 0 auto; padding: 0 32px; }
+
+  /* ---------- Nav ---------- */
+  header{
+    position: sticky; top:0; z-index: 50;
+    background: rgba(10,12,16,0.82);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  nav.wrap{
+    display:flex; align-items:center; justify-content:space-between;
+    height: 68px;
+  }
+  .logo{
+    font-family:'JetBrains Mono', monospace; font-weight:600; font-size: 18px; letter-spacing: 0.01em;
+    color: var(--ink-soft);
+  }
+  .logo span{ color: var(--moss); }
+  .navlinks{ display:flex; gap: 28px; font-size: 13px; color: var(--ink-soft); font-family:'JetBrains Mono', monospace; }
+  .navlinks a{ position:relative; padding: 4px 0; transition: color .2s; }
+  .navlinks a:hover{ color: var(--ink); }
+  .navlinks a::after{
+    content:''; position:absolute; left:0; right:0; bottom:-2px; height:1px;
+    background: var(--moss); transform: scaleX(0); transform-origin:left; transition: transform .25s ease;
+    box-shadow: 0 0 8px var(--moss);
+  }
+  .navlinks a:hover::after{ transform: scaleX(1); }
+
+  /* ---------- Hero ---------- */
+  .hero{
+    padding: 120px 0 100px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero .wrap{ position: relative; z-index: 2; }
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.14em;
+    text-transform: uppercase; color: var(--clay); margin-bottom: 22px;
+    display:flex; align-items:center; gap: 10px;
+  }
+  .eyebrow::before{ content:''; width: 8px; height:8px; border-radius: 50%; background: var(--clay); display:inline-block; box-shadow: 0 0 10px var(--clay); }
+  h1.hero-title{
+    font-family:'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: clamp(42px, 7vw, 80px);
+    line-height: 1.04;
+    letter-spacing: -0.02em;
+    max-width: 14ch;
+  }
+  h1.hero-title em{
+    font-style: normal; color: var(--moss); font-weight: 700;
+    text-shadow: 0 0 26px rgba(255,138,61,0.35);
+  }
+  .hero-sub{
+    margin-top: 26px;
+    max-width: 46ch;
+    font-size: 18px;
+    color: var(--ink-soft);
+  }
+  .hero-actions{
+    margin-top: 40px;
+    display:flex; gap:14px; flex-wrap: wrap;
+  }
+  .btn{
+    display:inline-flex; align-items:center; gap:8px;
+    padding: 13px 22px;
+    border-radius: var(--radius);
+    font-size: 14px; font-weight: 600;
+    border: 1px solid var(--line);
+    transition: all .2s ease;
+  }
+  .btn.solid{ background: var(--moss); color: var(--white); border-color: var(--moss); }
+  .btn.solid:hover{ background: var(--moss-deep); border-color: var(--moss-deep); box-shadow: 0 0 24px rgba(255,138,61,0.35); }
+  .btn.ghost{ color: var(--ink); }
+  .btn.ghost:hover{ background: var(--surface); border-color: var(--ink-soft); }
+
+  /* HUD status console signature */
+  .sig{
+    position:absolute; right: 0; top: 100px;
+    width: 220px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 18px 20px;
+    font-family:'JetBrains Mono', monospace;
+    z-index: 1;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+  }
+  .sig .hud-status{
+    display:flex; align-items:center; gap:8px;
+    font-size: 11px; letter-spacing: 0.08em; color: var(--ink-soft);
+    padding-bottom: 14px; margin-bottom: 14px; border-bottom: 1px solid var(--line);
+  }
+  .sig .hud-status .pulse{
+    width:7px; height:7px; border-radius:50%; background: var(--clay);
+    box-shadow: 0 0 8px var(--clay);
+    animation: pulse 1.8s ease-in-out infinite;
+  }
+  @keyframes pulse{ 0%,100%{ opacity:1; } 50%{ opacity: 0.35; } }
+  .hud-bar{ margin-bottom: 12px; }
+  .hud-bar:last-child{ margin-bottom: 0; }
+  .hud-bar label{ display:flex; justify-content:space-between; font-size: 10px; color: var(--ink-soft); margin-bottom: 6px; letter-spacing: 0.06em; }
+  .hud-bar .track{ height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+  .hud-bar .track i{ display:block; height:100%; background: var(--moss); border-radius: 2px; }
+  .hud-bar.alt .track i{ background: var(--clay); }
+  @media (max-width: 860px){ .sig{ display:none; } }
+
+  /* ---------- Section shell ---------- */
+  section{ padding: 88px 0; border-top: 1px solid var(--line); }
+  .sec-head{
+    display:flex; align-items:baseline; justify-content:space-between;
+    margin-bottom: 48px; gap: 20px; flex-wrap: wrap;
+  }
+  .sec-num{
+    font-family:'JetBrains Mono', monospace; font-size: 13px; color: var(--ink-soft);
+  }
+  h2.sec-title{
+    font-family:'Space Grotesk', sans-serif; font-weight: 700; font-size: 32px; letter-spacing: -0.01em;
+  }
+
+  /* ---------- About ---------- */
+  .about-grid{
+    display:grid; grid-template-columns: 1.2fr 1fr; gap: 60px;
+  }
+  @media (max-width: 760px){ .about-grid{ grid-template-columns: 1fr; } }
+  .about-text p{ color: var(--ink-soft); font-size: 16px; margin-bottom: 16px; max-width: 58ch; }
+  .about-text strong{ color: var(--ink); font-weight: 600; }
+  .skills{
+    display:flex; flex-direction:column; gap: 0;
+    border-top: 1px solid var(--line);
+  }
+  .skills .row{
+    display:flex; justify-content:space-between; padding: 14px 0;
+    border-bottom: 1px solid var(--line); font-size: 14px;
+  }
+  .skills .row span:first-child{ color: var(--ink-soft); font-family:'JetBrains Mono', monospace; font-size: 12px; }
+  .skills .row span:last-child{ font-weight: 500; }
+
+  /* ---------- Interests ---------- */
+  .interest-grid{
+    display:grid; grid-template-columns: repeat(2, 1fr); gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  @media (max-width: 700px){ .interest-grid{ grid-template-columns: 1fr; } }
+  .interest-card{
+    background: var(--surface); padding: 30px 32px;
+    transition: background .2s ease;
+  }
+  .interest-card:hover{ background: #1B2029; }
+  .interest-emoji{ font-size: 22px; margin-bottom: 14px; }
+  .interest-card h3{
+    font-family:'Space Grotesk', sans-serif; font-weight: 600; font-size: 18px; margin-bottom: 10px;
+  }
+  .interest-card p{ font-size: 14px; color: var(--ink-soft); line-height: 1.65; }
+
+  /* ---------- Projects ---------- */
+  .project-card{
+    display:grid; grid-template-columns: 90px 1fr auto;
+    gap: 24px; align-items: start;
+    padding: 32px 24px;
+    margin: 0 -24px;
+    border-radius: 8px;
+    border-bottom: 1px solid var(--line);
+    transition: background .2s ease;
+  }
+  .project-card:first-of-type{ border-top: 1px solid var(--line); }
+  .project-card:hover{ background: var(--surface); }
+  @media (max-width: 700px){
+    .project-card{ grid-template-columns: 1fr; }
+  }
+  .p-tag{
+    font-family:'JetBrains Mono', monospace; font-size: 12px; color: var(--moss);
+    padding-top: 4px;
+  }
+  .p-body h3{
+    font-family:'Space Grotesk', sans-serif; font-size: 22px; font-weight: 600; margin-bottom: 10px;
+  }
+  .p-body p{ color: var(--ink-soft); font-size: 15px; max-width: 56ch; margin-bottom: 14px; }
+  .p-stack{ display:flex; gap: 8px; flex-wrap: wrap; }
+  .p-stack span{
+    font-size: 12px; font-family:'JetBrains Mono', monospace; color: var(--ink-soft);
+    border: 1px solid var(--line); border-radius: 999px; padding: 4px 10px;
+  }
+  .p-link{
+    align-self: center; font-size: 14px; font-weight: 600; white-space: nowrap;
+    display:flex; align-items:center; gap: 6px;
+    color: var(--clay);
+  }
+  .p-link svg{ width: 14px; height:14px; transition: transform .2s; }
+  .project-card:hover .p-link svg{ transform: translate(3px,-3px); }
+
+  .more-note{
+    margin-top: 28px; font-size: 14px; color: var(--ink-soft);
+  }
+
+  /* ---------- Store teaser ---------- */
+  .store-teaser{
+    border: 1px dashed var(--line);
+    border-radius: 8px;
+    padding: 48px 40px;
+    display:flex; flex-direction:column; align-items:flex-start; gap: 18px;
+    background: var(--surface);
+  }
+  .store-badge{
+    font-family:'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.1em;
+    text-transform: uppercase; color: var(--moss);
+    border: 1px solid var(--moss); border-radius: 999px;
+    padding: 6px 14px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .store-badge::before{ content:''; width:6px; height:6px; border-radius:50%; background: var(--moss); box-shadow: 0 0 8px var(--moss); animation: pulse 1.8s ease-in-out infinite; }
+  .store-text{
+    color: var(--ink-soft); font-size: 16px; max-width: 60ch;
+  }
+
+  /* ---------- Contact ---------- */
+  .contact{
+    display:flex; justify-content:space-between; align-items:flex-end; gap: 40px; flex-wrap: wrap;
+  }
+  .contact h2{
+    font-family:'Space Grotesk', sans-serif; font-weight: 700;
+    font-size: clamp(30px, 5vw, 48px); max-width: 14ch; letter-spacing: -0.01em;
+  }
+  .contact h2 em{ font-style: normal; color: var(--moss); }
+  .contact-links{ display:flex; flex-direction:column; gap: 10px; align-items:flex-end; }
+  .contact-links a{
+    font-size: 15px; font-weight: 500; padding-bottom: 2px; border-bottom: 1px solid transparent;
+  }
+  .contact-links a:hover{ border-color: var(--clay); color: var(--clay); }
+  .discord-tag{
+    font-size: 15px; font-weight: 500; color: var(--ink-soft);
+    font-family:'JetBrains Mono', monospace;
+  }
+  @media (max-width: 700px){ .contact{ flex-direction:column; align-items:flex-start; } .contact-links{ align-items:flex-start; } }
+
+  footer{
+    padding: 28px 0 40px; text-align:center;
+    font-size: 13px; color: var(--ink-soft);
+    font-family:'JetBrains Mono', monospace;
+    border-top: 1px solid var(--line);
+  }
+
+  [data-reveal]{ opacity: 0; transform: translateY(14px); transition: opacity .6s ease, transform .6s ease; }
+  [data-reveal].in{ opacity: 1; transform: translateY(0); }
+
+  @media (prefers-reduced-motion: reduce){
+    [data-reveal]{ opacity:1; transform:none; transition:none; }
+    html{ scroll-behavior:auto; }
+    .pulse, .store-badge::before{ animation: none; }
+  }
+
+  a:focus-visible, .btn:focus-visible{
+    outline: 2px solid var(--clay); outline-offset: 3px;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <nav class="wrap">
+    <div class="logo">[<span>EDD</span>]</div>
+    <div class="navlinks">
+      <a href="#about">關於</a>
+      <a href="#work">作品</a>
+      <a href="#store">販售區</a>
+      <a href="#contact">聯絡</a>
+    </div>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="sig" aria-hidden="true">
+    <div class="hud-status"><span class="pulse"></span> SYSTEM · ONLINE</div>
+    <div class="hud-bar"><label><span>HANDLING</span><span>91%</span></label><div class="track"><i style="width:91%"></i></div></div>
+    <div class="hud-bar"><label><span>NETWORK</span><span>78%</span></label><div class="track"><i style="width:78%"></i></div></div>
+    <div class="hud-bar alt"><label><span>LIVERY</span><span>64%</span></label><div class="track"><i style="width:64%"></i></div></div>
+  </div>
+  <div class="wrap">
+    <div class="eyebrow">歡迎來我家</div>
+    <h1 class="hero-title">嗨，我是 <em>EDD</em>。👋</h1>
+    <p class="hero-sub">
+      這裡是我個人生活、技術碎碎念與各種日常實驗的集散地。硬體控、生活除錯大師、還有一個熱愛實作的學生——大概就是我了。
+    </p>
+    <div class="hero-actions">
+      <a class="btn solid" href="#about">認識我</a>
+      <a class="btn ghost" href="#work">看作品</a>
+    </div>
+  </div>
+</section>
+
+<section id="about" data-reveal>
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 class="sec-title">關於我</h2>
+      <span class="sec-num">01 — About</span>
+    </div>
+    <div class="about-text" style="max-width:70ch; margin-bottom: 44px;">
+      <p>
+        很開心你點進來！平常沒事的時候，我大概都在改造 FiveM 伺服器與載具、跟程式與網路死磕、對 3C 效能和續航有莫名的執著、動手修理生活裡各種奇怪的 bug，或是規劃一場不走尋常路的深度小旅行。
+      </p>
+      <p>
+        在這個網站裡，我會隨手寫一些技術路上的踩坑紀錄、FiveM 開發心得、3C 硬體的體驗，或者一些純粹的生活隨筆。
+      </p>
+    </div>
+
+    <div class="interest-grid">
+      <div class="interest-card">
+        <div class="interest-emoji">🎮</div>
+        <h3>FiveM 伺服器與載具開發</h3>
+        <p>不只是玩遊戲，更喜歡動手改造它。我會自己編寫 FiveM 插件，也會動手設計獨一無二的載具塗裝（Livery），甚至深入調整 Handling 等載具數據，直到操縱感與性能被調校到極致。平常也會泡在全 RP 伺服器裡，體驗別人怎麼玩、怎麼設計世界觀。</p>
+      </div>
+      <div class="interest-card">
+        <div class="interest-emoji">💻</div>
+        <h3>跟程式與網路死磕</h3>
+        <p>喜歡寫寫 Python、研究 Cisco 網路架構，雖然有時候 debug 會抓狂，但寫出漂亮邏輯的那一刻真的很爽。</p>
+      </div>
+      <div class="interest-card">
+        <div class="interest-emoji">🎬</div>
+        <h3>效能與影音偏執狂</h3>
+        <p>買手機第一看性能、第二看電量，最重要的任務是能讓我順暢地看場好電影。對 3C 產品的耐用與效能有著莫名的執著。</p>
+      </div>
+      <div class="interest-card">
+        <div class="interest-emoji">🛠️</div>
+        <h3>生活中的 Debug 狂人</h3>
+        <p>不管是車機系統突然跳出奇妙的 logo 水印、還是各種奇葩的網路設定，只要被我看到，不把它修好我就渾身不對勁。</p>
+      </div>
+      <div class="interest-card" style="grid-column: 1 / -1;">
+        <div class="interest-emoji">🗺️</div>
+        <h3>不走尋常路的旅行者</h3>
+        <p>比起跟風去熱門景點，我更喜歡跟朋友一起規劃深度（甚至帶點永續概念）的在地小旅行，行程一定要夠豐富。</p>
+      </div>
+    </div>
+
+    <p class="more-note">既然都來了，不妨隨便逛逛吧！如果這裡的內容剛好對你的胃口，歡迎透過下方連結關注我，我會不定時更新。</p>
+  </div>
+</section>
+
+<section id="work" data-reveal>
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 class="sec-title">精選作品</h2>
+      <span class="sec-num">02 — Work</span>
+    </div>
+
+    <div class="project-card">
+      <div class="p-tag">01</div>
+      <div class="p-body">
+        <h3>Waste4 Report System</h3>
+        <p>
+          一套廢棄物回報系統，協助使用者快速提交回報、並讓管理端追蹤處理進度，讓整個回報流程更透明、更有效率。
+        </p>
+        <div class="p-stack">
+          <span>Web App</span><span>回報系統</span><span>資料管理</span>
+        </div>
+      </div>
+      <a class="p-link" href="https://github.com/baby0900343376-collab/waste4-report-system" target="_blank" rel="noopener">
+        查看專案
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>
+      </a>
+    </div>
+
+    <p class="more-note">更多作品陸續整理上架中。</p>
+  </div>
+</section>
+
+<section id="store" data-reveal>
+  <div class="wrap">
+    <div class="sec-head">
+      <h2 class="sec-title">FiveM 插件販售</h2>
+      <span class="sec-num">03 — Store</span>
+    </div>
+    <div class="store-teaser">
+      <div class="store-badge">即將推出</div>
+      <p class="store-text">
+        正在整理一批 FiveM 插件準備上架販售，包含伺服器功能腳本與客製化系統。想搶先收到上架通知，歡迎透過下方聯絡方式與我聯繫。
+      </p>
+    </div>
+  </div>
+</section>
+
+<section id="contact" data-reveal>
+  <div class="wrap">
+    <div class="contact">
+      <h2>有專案想聊聊？<br><em>寫信給我。</em></h2>
+      <div class="contact-links">
+        <a href="https://github.com/baby0900343376-collab" target="_blank" rel="noopener">GitHub ↗</a>
+        <a href="https://www.twitch.tv/eddy_hua1" target="_blank" rel="noopener">Twitch ↗</a>
+        <span class="discord-tag">Discord — eddyhua</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>© 2026 Eddyhua — Built with care.</footer>
+
+<script>
+  const items = document.querySelectorAll('[data-reveal]');
+  const io = new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  items.forEach(el=> io.observe(el));
+</script>
+
+</body>
+</html>
