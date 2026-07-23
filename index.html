@@ -465,7 +465,7 @@
   </div>
 </section>
 
-<footer>© 2026 Eddyhua — Built with care.</footer>
+<footer>© 2026 Eddyhua — Built with care. · <span id="visit-count">— views</span></footer>
 
 <script>
   const items = document.querySelectorAll('[data-reveal]');
@@ -473,6 +473,17 @@
     entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
   }, { threshold: 0.12 });
   items.forEach(el=> io.observe(el));
+</script>
+
+<script>
+  fetch('https://api.countapi.xyz/hit/baby0900343376-collab-site/homepage')
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById('visit-count').textContent = data.value.toLocaleString() + ' views';
+    })
+    .catch(() => {
+      document.getElementById('visit-count').textContent = '';
+    });
 </script>
 
 </body>
