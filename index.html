@@ -229,6 +229,8 @@
   .p-link svg{ width: 14px; height:14px; transition: transform .2s; }
   .project-card:hover .p-link svg{ transform: translate(3px,-3px); }
 
+  .p-date{ font-family:'JetBrains Mono', monospace; font-size: 11px; color: var(--ink-soft); margin-top: 8px; }
+  .more-note a{ color: var(--clay); }
   .more-note{
     margin-top: 28px; font-size: 14px; color: var(--ink-soft);
   }
@@ -252,6 +254,31 @@
   .store-text{
     color: var(--ink-soft); font-size: 16px; max-width: 60ch;
   }
+
+  /* Tebex 商品卡片 */
+  .store-grid{
+    display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;
+  }
+  .store-grid[hidden], .store-teaser[hidden], .store-more[hidden]{ display:none; }
+  .shop-card{
+    display:flex; flex-direction:column;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 8px; overflow:hidden;
+    transition: border-color .2s ease, transform .2s ease;
+  }
+  .shop-card:hover{ border-color: var(--moss); transform: translateY(-2px); }
+  .shop-img{ aspect-ratio: 16/10; background: var(--bg-alt); overflow:hidden; }
+  .shop-img img{ width:100%; height:100%; object-fit: cover; display:block; }
+  .shop-body{ padding: 20px 22px 22px; display:flex; flex-direction:column; gap: 10px; flex:1; }
+  .shop-cat{ font-family:'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--clay); }
+  .shop-body h3{ font-family:'Space Grotesk', sans-serif; font-size: 20px; font-weight: 600; line-height:1.25; }
+  .shop-desc{ color: var(--ink-soft); font-size: 14px; line-height: 1.6; flex:1; }
+  .shop-foot{ display:flex; align-items:center; justify-content:space-between; gap: 12px; margin-top: 6px; }
+  .shop-price{ font-family:'JetBrains Mono', monospace; font-weight: 600; font-size: 16px; color: var(--ink); }
+  .shop-price.free{ color: var(--clay); }
+  .shop-price s{ color: var(--ink-soft); font-weight: 400; font-size: 13px; margin-right: 6px; }
+  .shop-card .btn{ padding: 10px 18px; font-size: 13px; }
+  .store-more{ margin-top: 24px; font-size: 14px; color: var(--ink-soft); }
+  .store-more a{ color: var(--clay); }
 
   /* ---------- Contact ---------- */
   .contact{
@@ -382,25 +409,11 @@
       <span class="sec-num">02 — Work</span>
     </div>
 
+
+    <div id="projects">
+    <!-- 備援內容：GitHub 抓不到時顯示這些 -->
     <div class="project-card">
       <div class="p-tag">01</div>
-      <div class="p-body">
-        <h3>Waste4 Report System</h3>
-        <p>
-          一套廢棄物回報系統，協助使用者快速提交回報、並讓管理端追蹤處理進度，讓整個回報流程更透明、更有效率。
-        </p>
-        <div class="p-stack">
-          <span>Web App</span><span>回報系統</span><span>資料管理</span>
-        </div>
-      </div>
-      <a class="p-link" href="https://github.com/baby0900343376-collab/waste4-report-system" target="_blank" rel="noopener">
-        查看專案
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>
-      </a>
-    </div>
-
-    <div class="project-card">
-      <div class="p-tag">02</div>
       <div class="p-body">
         <h3>Smart LPR Permit System</h3>
         <p>
@@ -417,7 +430,7 @@
     </div>
 
     <div class="project-card">
-      <div class="p-tag">03</div>
+      <div class="p-tag">02</div>
       <div class="p-body">
         <h3>EDD Set Callsign</h3>
         <p>
@@ -427,13 +440,15 @@
           <span>FiveM</span><span>Lua</span><span>QB / QBX / ESX</span><span>NUI</span><span>v1.3.0</span>
         </div>
       </div>
-      <a class="p-link" href="https://github.com/baby0900343376-collab/EDD-setcallsign" target="_blank" rel="noopener">
-        查看專案
+      <a class="p-link" href="#store">
+        前往取得
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>
       </a>
     </div>
 
-    <p class="more-note">更多作品陸續整理上架中。</p>
+    </div>
+
+    <p class="more-note" id="projects-note">更多作品陸續整理上架中。</p>
   </div>
 </section>
 
@@ -443,7 +458,11 @@
       <h2 class="sec-title">FiveM 插件販售</h2>
       <span class="sec-num">03 — Store</span>
     </div>
-    <div class="store-teaser">
+    <div class="store-grid" id="store-grid" hidden></div>
+    <p class="store-more" id="store-more" hidden></p>
+
+    <!-- 備援內容：Tebex 還沒設定或抓不到時顯示 -->
+    <div class="store-teaser" id="store-teaser">
       <div class="store-badge">即將推出</div>
       <p class="store-text">
         正在整理一批 FiveM 插件準備上架販售，包含伺服器功能腳本與客製化系統。想搶先收到上架通知，歡迎透過下方聯絡方式與我聯繫。
@@ -477,6 +496,175 @@
     entries.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); } });
   }, { threshold: 0.12 });
   items.forEach(el=> io.observe(el));
+</script>
+
+<script>
+/* ===== 自動從 GitHub 抓公開專案 =====
+   在 GitHub 專案頁右邊 About 的齒輪 ⚙ 填寫 Description 和 Topics，網站就會顯示。 */
+const GH = {
+  user: 'baby0900343376-collab',
+  // 不想顯示在網站上的 repo 名稱
+  exclude: ['baby0900343376-collab.github.io', 'waste4-report-system', 'aura-preview', 'grad-photo-booking'],
+  // 想固定排在最前面的 repo (依序)，其餘依最近更新排序
+  pinned: ['EDD-setcallsign'],
+  // 放在其他帳號或組織底下、也想顯示的 repo，格式 '擁有者/名稱'，例如 'my-org/EDD-setcallsign'
+  extra: [],
+  // 自訂顯示名稱 (沒寫的會自動把 repo 名稱轉成首字大寫)
+  titles: {
+    'EDD-setcallsign': 'EDD Set Callsign',
+    'smart-lpr-permit-system': 'Smart LPR Permit System',
+  },
+  max: 12,
+  cacheMinutes: 30,
+};
+
+(function loadGithubProjects(){
+  const box = document.getElementById('projects');
+  const note = document.getElementById('projects-note');
+  const cacheKey = 'gh-repos-' + GH.user;
+  const esc = (t) => String(t ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const arrow = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>';
+
+  function render(repos){
+    const list = repos
+      .filter(r => !r.fork && !r.archived && !GH.exclude.includes(r.name))
+      .sort((a, b) => {
+        const pa = GH.pinned.indexOf(a.name), pb = GH.pinned.indexOf(b.name);
+        if (pa !== -1 || pb !== -1) return (pa === -1 ? 999 : pa) - (pb === -1 ? 999 : pb);
+        return new Date(b.pushed_at) - new Date(a.pushed_at);
+      })
+      .slice(0, GH.max);
+    if (!list.length) return;
+
+    box.innerHTML = list.map((r, i) => {
+      const title = GH.titles[r.name] || r.name.replace(/[-_]+/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+      const tags = [r.language, ...(r.topics || [])].filter(Boolean).slice(0, 6);
+      const d = new Date(r.pushed_at);
+      const date = `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, '0')}/${String(d.getDate()).padStart(2, '0')}`;
+      const stars = r.stargazers_count ? ` · ★ ${r.stargazers_count}` : '';
+      return `
+    <div class="project-card">
+      <div class="p-tag">${String(i + 1).padStart(2, '0')}</div>
+      <div class="p-body">
+        <h3>${esc(title)}</h3>
+        <p>${esc(r.description || '詳細內容請到 GitHub 查看。')}</p>
+        <div class="p-stack">${tags.map(t => `<span>${esc(t)}</span>`).join('')}</div>
+        <div class="p-date">最後更新 ${date}${stars}</div>
+      </div>
+      <a class="p-link" href="${esc(r.html_url)}" target="_blank" rel="noopener">查看專案 ${arrow}</a>
+    </div>`;
+    }).join('');
+    note.innerHTML = `專案自動同步自 <a href="https://github.com/${GH.user}?tab=repositories" target="_blank" rel="noopener">GitHub ↗</a>`;
+  }
+
+  // 先用快取 (避免 GitHub 未登入每小時 60 次的限制)
+  try {
+    const c = JSON.parse(localStorage.getItem(cacheKey) || 'null');
+    if (c && Date.now() - c.t < GH.cacheMinutes * 60000) { render(c.data); return; }
+  } catch (e) {}
+
+  const get = (url) => fetch(url, { headers: { 'Accept': 'application/vnd.github+json' } })
+    .then(r => r.ok ? r.json() : Promise.reject(r.status));
+
+  Promise.all([
+    get(`https://api.github.com/users/${GH.user}/repos?per_page=100&sort=pushed`),
+    ...GH.extra.map(full => get(`https://api.github.com/repos/${full}`).catch(() => null)),
+  ])
+    .then(([own, ...extra]) => {
+      if (!Array.isArray(own)) return;
+      const data = own.concat(extra.filter(Boolean));
+      render(data);
+      try { localStorage.setItem(cacheKey, JSON.stringify({ t: Date.now(), data })); } catch (e) {}
+    })
+    .catch(() => { /* 失敗就保留原本的備援卡片 */ });
+})();
+</script>
+
+<script>
+/* ===== 自動從 Tebex 抓商品 =====
+   在 Tebex 後台新增或修改商品，網站會自動更新。 */
+const TEBEX = {
+  // Tebex 後台 → Integrations / API Keys 的「Public Token」(格式像 xxxx-xxxxxxxx...)
+  // ⚠ 只能放 Public Token，絕對不要放 Private Key
+  token: '',
+  // 你的 Tebex 商店網址，例如 'https://edd-store.tebex.io'
+  storeUrl: '',
+  cacheMinutes: 30,
+};
+
+(function loadTebexPackages(){
+  if (!TEBEX.token || !TEBEX.storeUrl) return; // 還沒設定就顯示「即將推出」
+
+  const grid = document.getElementById('store-grid');
+  const more = document.getElementById('store-more');
+  const teaser = document.getElementById('store-teaser');
+  const store = TEBEX.storeUrl.replace(/\/+$/, '');
+  const cacheKey = 'tebex-packages-' + TEBEX.token;
+  const esc = (t) => String(t ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  // 把商品介紹的 HTML 轉成純文字摘要，優先取中文那一段
+  function summary(html){
+    const div = document.createElement('div');
+    div.innerHTML = html || '';
+    const paras = [...div.querySelectorAll('p')].map(p => p.textContent.trim()).filter(Boolean);
+    let text = paras.find(t => /[\u4e00-\u9fff]/.test(t)) || paras[0] || div.textContent.trim();
+    text = text.replace(/\s+/g, ' ');
+    return text.length > 110 ? text.slice(0, 108) + '…' : text;
+  }
+
+  function price(p){
+    const total = Number(p.total_price ?? p.base_price ?? 0);
+    if (!total) return '<span class="shop-price free">免費 FREE</span>';
+    const cur = esc(p.currency || 'USD');
+    const base = Number(p.base_price || 0);
+    const old = p.discount && base > total ? `<s>${base.toFixed(2)}</s>` : '';
+    return `<span class="shop-price">${old}${total.toFixed(2)} ${cur}</span>`;
+  }
+
+  function render(pkgs){
+    if (!Array.isArray(pkgs) || !pkgs.length) return;
+    pkgs = pkgs.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+    grid.innerHTML = pkgs.map(p => {
+      const media = (p.media || []).find(m => m.primary || m.featured) || (p.media || [])[0];
+      const img = p.image || (media && media.url);
+      const free = !Number(p.total_price ?? p.base_price ?? 0);
+      const url = `${store}/package/${encodeURIComponent(p.id)}`;
+      return `
+      <article class="shop-card">
+        ${img ? `<div class="shop-img"><img src="${esc(img)}" alt="${esc(p.name)}" loading="lazy"></div>` : ''}
+        <div class="shop-body">
+          ${p.category && p.category.name ? `<div class="shop-cat">${esc(p.category.name)}</div>` : ''}
+          <h3>${esc(p.name)}</h3>
+          <p class="shop-desc">${esc(summary(p.description))}</p>
+          <div class="shop-foot">
+            ${price(p)}
+            <a class="btn solid" href="${esc(url)}" target="_blank" rel="noopener">${free ? '免費取得' : '購買'} →</a>
+          </div>
+        </div>
+      </article>`;
+    }).join('');
+
+    grid.hidden = false;
+    teaser.hidden = true;
+    more.hidden = false;
+    more.innerHTML = `透過 Tebex 安全結帳，領取後到 Cfx.re Portal 下載 · <a href="${esc(store)}" target="_blank" rel="noopener">前往商店 ↗</a>`;
+  }
+
+  try {
+    const c = JSON.parse(localStorage.getItem(cacheKey) || 'null');
+    if (c && Date.now() - c.t < TEBEX.cacheMinutes * 60000) { render(c.data); return; }
+  } catch (e) {}
+
+  fetch(`https://headless.tebex.io/api/accounts/${encodeURIComponent(TEBEX.token)}/packages`)
+    .then(r => r.ok ? r.json() : Promise.reject(r.status))
+    .then(json => {
+      const data = json && json.data;
+      render(data);
+      try { localStorage.setItem(cacheKey, JSON.stringify({ t: Date.now(), data })); } catch (e) {}
+    })
+    .catch(() => { /* 失敗就保留「即將推出」 */ });
+})();
 </script>
 
 </body>
