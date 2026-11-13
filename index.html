@@ -680,7 +680,10 @@ const TEBEX = {
   fetch(url, { cache: 'no-store' })
     .then(r => r.ok ? r.text() : Promise.reject(r.status))
     .then(svg => {
-      if (/unavailable|error/i.test(svg)) return; // 服務故障就不顯示
+      // 只看徽章上顯示的文字：要有數字 (觀看次數)、而且沒有錯誤字樣才顯示
+      const doc = new DOMParser().parseFromString(svg, 'image/svg+xml');
+      const text = [...doc.querySelectorAll('text')].map(t => t.textContent).join(' ');
+      if (!/\d/.test(text) || /error|unavailable|not found|gateway|timeout/i.test(text)) return;
       show('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
     })
     .catch(() => {
