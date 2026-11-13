@@ -486,8 +486,7 @@
 
 <footer>
   © 2026 Eddyhua — Built with care.
-  <img src="https://hits.sh/baby0900343376-collab.github.io.svg?label=views&color=ff8a3d&labelColor=161a21&style=flat"
-       alt="觀看次數" style="vertical-align:middle; margin-left:8px; height:20px;">
+  <img id="views-badge" alt="觀看次數" hidden style="vertical-align:middle; margin-left:8px; height:20px;">
 </footer>
 
 <script>
@@ -669,6 +668,26 @@ const TEBEX = {
       try { localStorage.setItem(cacheKey, JSON.stringify({ t: Date.now(), data, url })); } catch (e) {}
     })
     .catch(() => { /* 失敗就保留「即將推出」 */ });
+})();
+</script>
+
+<script>
+/* 觀看次數徽章：hits.sh 故障時自動隱藏，不顯示錯誤文字 */
+(function(){
+  const img = document.getElementById('views-badge');
+  const url = 'https://hits.sh/baby0900343376-collab.github.io.svg?label=views&color=ff8a3d&labelColor=161a21&style=flat';
+  const show = (src) => { img.src = src; img.hidden = false; };
+  fetch(url, { cache: 'no-store' })
+    .then(r => r.ok ? r.text() : Promise.reject(r.status))
+    .then(svg => {
+      if (/unavailable|error/i.test(svg)) return; // 服務故障就不顯示
+      show('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
+    })
+    .catch(() => {
+      // 讀不到內容 (例如瀏覽器限制) 時改用一般圖片載入，載入失敗就維持隱藏
+      img.onerror = () => { img.hidden = true; };
+      show(url);
+    });
 })();
 </script>
 
