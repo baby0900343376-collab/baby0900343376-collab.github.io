@@ -587,25 +587,27 @@ const TEBEX = {
   // Tebex 後台 → Integrations / API Keys 的「Public Token」(格式像 xxxx-xxxxxxxx...)
   // ⚠ 只能放 Public Token，絕對不要放 Private Key
   token: '159ay-20ce75b0a84372b9809a3a5e954c22e9c32cf938',
-  // 你的 Tebex 商店網址，例如 'https://edd-store.tebex.io'
-  storeUrl: 'https://edd-store.tebex.store',
+  // 商店網址會自動從 Tebex 抓；想強制指定才填，例如 'https://edd-store.tebex.store'
+  storeUrl: '',
   cacheMinutes: 30,
 };
 
 (function loadTebexPackages(){
-  if (!TEBEX.token || !TEBEX.storeUrl) return; // 還沒設定就顯示「即將推出」
+  if (!TEBEX.token) return; // 還沒設定就顯示「即將推出」
 
   const grid = document.getElementById('store-grid');
   const more = document.getElementById('store-more');
   const teaser = document.getElementById('store-teaser');
-  const store = TEBEX.storeUrl.replace(/\/+$/, '');
-  const cacheKey = 'tebex-packages-' + TEBEX.token;
+  let store = (TEBEX.storeUrl || '').replace(/\/+$/, '');
+  const cacheKey = 'tebex-v3-' + TEBEX.token;
   const esc = (t) => String(t ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
   // 把商品介紹的 HTML 轉成純文字摘要，優先取中文那一段
   function summary(html){
     const div = document.createElement('div');
     div.innerHTML = html || '';
+    // 介紹若是把 HTML 原始碼當文字貼上，再解析一次
+    if (/<\/?(p|h\d|ul|li|strong|hr)\b/i.test(div.textContent)) div.innerHTML = div.textContent;
     const paras = [...div.querySelectorAll('p')].map(p => p.textContent.trim()).filter(Boolean);
     let text = paras.find(t => /[\u4e00-\u9fff]/.test(t)) || paras[0] || div.textContent.trim();
     text = text.replace(/\s+/g, ' ');
@@ -621,8 +623,9 @@ const TEBEX = {
     return `<span class="shop-price">${old}${total.toFixed(2)} ${cur}</span>`;
   }
 
-  function render(pkgs){
-    if (!Array.isArray(pkgs) || !pkgs.length) return;
+  function render(pkgs, storeUrl){
+    if (storeUrl) store = String(storeUrl).replace(/\/+$/, '');
+    if (!store || !Array.isArray(pkgs) || !pkgs.length) return;
     pkgs = pkgs.slice().sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
     grid.innerHTML = pkgs.map(p => {
@@ -634,7 +637,6 @@ const TEBEX = {
       <article class="shop-card">
         ${img ? `<div class="shop-img"><img src="${esc(img)}" alt="${esc(p.name)}" loading="lazy"></div>` : ''}
         <div class="shop-body">
-          ${p.category && p.category.name ? `<div class="shop-cat">${esc(p.category.name)}</div>` : ''}
           <h3>${esc(p.name)}</h3>
           <p class="shop-desc">${esc(summary(p.description))}</p>
           <div class="shop-foot">
@@ -653,15 +655,18 @@ const TEBEX = {
 
   try {
     const c = JSON.parse(localStorage.getItem(cacheKey) || 'null');
-    if (c && Date.now() - c.t < TEBEX.cacheMinutes * 60000) { render(c.data); return; }
+    if (c && Date.now() - c.t < TEBEX.cacheMinutes * 60000) { render(c.data, c.url); return; }
   } catch (e) {}
 
-  fetch(`https://headless.tebex.io/api/accounts/${encodeURIComponent(TEBEX.token)}/packages`)
-    .then(r => r.ok ? r.json() : Promise.reject(r.status))
-    .then(json => {
-      const data = json && json.data;
-      render(data);
-      try { localStorage.setItem(cacheKey, JSON.stringify({ t: Date.now(), data })); } catch (e) {}
+  const api = `https://headless.tebex.io/api/accounts/${encodeURIComponent(TEBEX.token)}`;
+  const get = (u) => fetch(u).then(r => r.ok ? r.json() : Promise.reject(r.status));
+
+  Promise.all([get(`${api}/packages`), store ? null : get(api).catch(() => null)])
+    .then(([pk, acc]) => {
+      const data = pk && pk.data;
+      const url = store || (acc && acc.data && acc.data.webstore_url) || '';
+      render(data, url);
+      try { localStorage.setItem(cacheKey, JSON.stringify({ t: Date.now(), data, url })); } catch (e) {}
     })
     .catch(() => { /* 失敗就保留「即將推出」 */ });
 })();
