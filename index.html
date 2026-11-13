@@ -678,7 +678,7 @@ const TEBEX = {
   const url = 'https://hits.sh/baby0900343376-collab.github.io.svg?label=views&color=ff8a3d&labelColor=161a21&style=flat';
   const show = (src) => { img.src = src; img.hidden = false; };
   fetch(url, { cache: 'no-store' })
-    .then(r => r.ok ? r.text() : Promise.reject(r.status))
+    .then(r => { if (!r.ok) throw new Error('hits ' + r.status); return r.text(); }) // 伺服器回錯誤狀態 → 隱藏
     .then(svg => {
       // 只看徽章上顯示的文字：要有數字 (觀看次數)、而且沒有錯誤字樣才顯示
       const doc = new DOMParser().parseFromString(svg, 'image/svg+xml');
@@ -686,8 +686,10 @@ const TEBEX = {
       if (!/\d/.test(text) || /error|unavailable|not found|gateway|timeout/i.test(text)) return;
       show('data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg));
     })
-    .catch(() => {
-      // 讀不到內容 (例如瀏覽器限制) 時改用一般圖片載入，載入失敗就維持隱藏
+    .catch((e) => {
+      // 只有「完全讀不到回應」(瀏覽器限制、網路中斷) 才改用一般圖片載入；
+      // hits.sh 回傳錯誤狀態時維持隱藏
+      if (!(e instanceof TypeError)) return;
       img.onerror = () => { img.hidden = true; };
       show(url);
     });
