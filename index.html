@@ -503,7 +503,7 @@
 const GH = {
   user: 'baby0900343376-collab',
   // 不想顯示在網站上的 repo 名稱
-  exclude: ['baby0900343376-collab.github.io', 'waste4-report-system', 'aura-preview', 'grad-photo-booking'],
+  exclude: ['baby0900343376-collab.github.io', 'waste4-report-system', 'aura-preview', 'grad-photo-booking', 'site-update-bot'],
   // 想固定排在最前面的 repo (依序)，其餘依最近更新排序
   pinned: ['EDD-setcallsign'],
   // 放在其他帳號或組織底下、也想顯示的 repo，格式 '擁有者/名稱'，例如 'my-org/EDD-setcallsign'
@@ -520,13 +520,15 @@ const GH = {
 (function loadGithubProjects(){
   const box = document.getElementById('projects');
   const note = document.getElementById('projects-note');
-  const cacheKey = 'gh-repos-' + GH.user;
+  const cacheKey = 'gh-repos-v2-' + GH.user;
   const esc = (t) => String(t ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   const arrow = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>';
 
+  const norm = (n) => String(n).toLowerCase().replace(/[-_\s]+/g, '');
+
   function render(repos){
     const list = repos
-      .filter(r => !r.fork && !r.archived && !GH.exclude.includes(r.name))
+      .filter(r => !r.fork && !r.archived && !GH.exclude.map(norm).includes(norm(r.name)))
       .sort((a, b) => {
         const pa = GH.pinned.indexOf(a.name), pb = GH.pinned.indexOf(b.name);
         if (pa !== -1 || pb !== -1) return (pa === -1 ? 999 : pa) - (pb === -1 ? 999 : pb);
